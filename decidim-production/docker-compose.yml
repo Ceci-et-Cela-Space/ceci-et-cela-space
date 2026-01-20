@@ -1,7 +1,7 @@
 services:
   decidim:
     image: ghcr.io/decidim/decidim:latest
-    entrypoint: ["/code/vendor/entrypoint.sh"]
+    entrypoint: ["sh", "-c", "chmod +x /code/vendor/*.sh && /code/vendor/entrypoint.sh"]
     command: ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
     ports:
       - "3000:3000"
