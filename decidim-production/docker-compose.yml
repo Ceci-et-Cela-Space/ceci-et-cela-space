@@ -1,15 +1,7 @@
-services:                                                                                                                                                  
-    decidim:
-      image: ghcr.io/decidim/decidim:latest
-      command: >
-        sh -c "
-          echo 'Waiting for PostgreSQL...' &&
-          sleep 5 &&
-          echo 'Running migrations...' &&
-          bundle exec rake db:migrate || true &&
-          echo 'Starting Rails server...' &&
-          bundle exec rails s -b 0.0.0.0 -p 3000
-        "
+services:                                                                                                                                                      decidim:
+      image: ghcr.io/decidim/decidim:latest                                                                                                                  
+      command: sh -c "echo 'Waiting for PostgreSQL...' && sleep 5 && echo 'Running migrations...' && bundle exec rake db:migrate || true && echo 'Starting   
+  Rails server...' && bundle exec rails s -b 0.0.0.0 -p 3000"                                                                                                
       ports:
         - "3000:3000"
       volumes:
@@ -47,10 +39,10 @@ services:
 
     sidekiq:
       image: ghcr.io/decidim/decidim:latest
-      command: ["bundle", "exec", "sidekiq"]
+      command: bundle exec sidekiq
       volumes:
         - decidim-uploads:/code/public/uploads
-        - decidim-storage:/code/storage
+        - decidim-storage:/code/storage                                                                                                                      
       environment:
         - RAILS_ENV=production
         - DATABASE_HOST=pg
