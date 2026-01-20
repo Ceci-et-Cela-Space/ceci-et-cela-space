@@ -1,65 +1,71 @@
-services:
-  decidim:
-    image: ghcr.io/decidim/decidim:latest
-    entrypoint: ["sh", "-c", "chmod +x /code/vendor/*.sh && /code/vendor/entrypoint.sh"]
-    command: ["bundle", "exec", "rails", "s", "-b", "0.0.0.0"]
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./scripts:/code/vendor
-      - decidim-uploads:/code/public/uploads
-      - decidim-storage:/code/storage
-    environment:
-      - RAILS_ENV=production
-      - DATABASE_HOST=pg
-      - DATABASE_USERNAME=decidim
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=decidim_production
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - RAILS_SERVE_STATIC_FILES=true
-      - RAILS_LOG_TO_STDOUT=true
-    depends_on:
-      - pg
-      - redis
-    restart: unless-stopped
+services:                                                                                                                                                  
+    decidim:
+      image: ghcr.io/decidim/decidim:latest
+      command: >
+        sh -c "
+          echo 'Waiting for PostgreSQL...' &&
+          sleep 5 &&
+          echo 'Running migrations...' &&
+          bundle exec rake db:migrate || true &&
+          echo 'Starting Rails server...' &&
+          bundle exec rails s -b 0.0.0.0 -p 3000
+        "
+      ports:
+        - "3000:3000"
+      volumes:
+        - decidim-uploads:/code/public/uploads
+        - decidim-storage:/code/storage
+      environment:
+        - RAILS_ENV=production
+        - DATABASE_HOST=pg
+        - DATABASE_USERNAME=decidim
+        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+        - DATABASE_NAME=decidim_production
+        - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+        - RAILS_SERVE_STATIC_FILES=true
+        - RAILS_LOG_TO_STDOUT=true
+      depends_on:
+        - pg
+        - redis
+      restart: unless-stopped
 
-  pg:
-    image: postgres:16
-    volumes:
-      - pg-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=decidim
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=decidim_production
-    restart: unless-stopped
+    pg:
+      image: postgres:16
+      volumes:
+        - pg-data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_USER=decidim
+        - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+        - POSTGRES_DB=decidim_production
+      restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis-data:/data
-    restart: unless-stopped
+    redis:
+      image: redis:7-alpine
+      volumes:
+        - redis-data:/data
+      restart: unless-stopped
 
-  sidekiq:
-    image: ghcr.io/decidim/decidim:latest
-    command: ["bundle", "exec", "sidekiq"]
-    volumes:
-      - decidim-uploads:/code/public/uploads
-      - decidim-storage:/code/storage
-    environment:
-      - RAILS_ENV=production
-      - DATABASE_HOST=pg
-      - DATABASE_USERNAME=decidim
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=decidim_production
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      - pg
-      - redis
-    restart: unless-stopped
+    sidekiq:
+      image: ghcr.io/decidim/decidim:latest
+      command: ["bundle", "exec", "sidekiq"]
+      volumes:
+        - decidim-uploads:/code/public/uploads
+        - decidim-storage:/code/storage
+      environment:
+        - RAILS_ENV=production
+        - DATABASE_HOST=pg
+        - DATABASE_USERNAME=decidim
+        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+        - DATABASE_NAME=decidim_production
+        - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+        - REDIS_URL=redis://redis:6379/0
+      depends_on:
+        - pg
+        - redis
+      restart: unless-stopped
 
-volumes:
-  pg-data:
-  redis-data:
-  decidim-uploads:
-  decidim-storage:
+  volumes:
+    pg-data:
+    redis-data:
+    decidim-uploads:
+    decidim-storage:
