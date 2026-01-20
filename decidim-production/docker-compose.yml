@@ -16,6 +16,7 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_LOG_TO_STDOUT=true
+      - DISABLE_FORCE_SSL=true
     depends_on:
       - pg
       - redis
@@ -48,6 +49,7 @@ services:
       - DATABASE_NAME=decidim_production
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - REDIS_URL=redis://redis:6379/0
+      - DISABLE_FORCE_SSL=true
     depends_on:
       - pg
       - redis
