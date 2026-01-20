@@ -1,7 +1,7 @@
 services:
   decidim:
     image: ghcr.io/decidim/decidim:latest
-    command: sh -c "sleep 5 && bundle exec rake db:migrate ; bundle exec rails s -b 0.0.0.0 -p 3000"
+    command: sh -c "sleep 10 && bundle exec rake db:migrate ; bundle exec rails s -b 0.0.0.0 -p 3000"
     ports:
       - 3000:3000
     volumes:
@@ -18,8 +18,12 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - DISABLE_FORCE_SSL=true
     depends_on:
-      - pg
-      - redis
+      pg:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - decidim-network
     restart: unless-stopped
   pg:
     image: postgres:16
@@ -29,11 +33,20 @@ services:
       - POSTGRES_USER=decidim
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
       - POSTGRES_DB=decidim_production
+    networks:
+      - decidim-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U decidim -d decidim_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
   redis:
     image: redis:7-alpine
     volumes:
       - redis-data:/data
+    networks:
+      - decidim-network
     restart: unless-stopped
   sidekiq:
     image: ghcr.io/decidim/decidim:latest
@@ -51,9 +64,18 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - DISABLE_FORCE_SSL=true
     depends_on:
-      - pg
-      - redis
+      pg:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - decidim-network
     restart: unless-stopped
+
+networks:
+  decidim-network:
+    driver: bridge
+
 volumes:
   pg-data:
   redis-data:
