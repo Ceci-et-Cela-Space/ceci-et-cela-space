@@ -9,6 +9,7 @@ services:
       - decidim-storage:/code/storage
     environment:
       - RAILS_ENV=production
+      - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
       - DATABASE_HOST=pg
       - DATABASE_USERNAME=decidim
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -56,6 +57,7 @@ services:
       - decidim-storage:/code/storage
     environment:
       - RAILS_ENV=production
+      - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
       - DATABASE_HOST=pg
       - DATABASE_USERNAME=decidim
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
