@@ -1,4 +1,5 @@
 version: "3"
+
 services:
   pg:
     image: postgres:14
@@ -63,42 +64,6 @@ volumes:
   decidim-uploads:
   decidim-storage:
 
-# UN SEUL bloc networks ici, tout en bas !
 networks:
   dokploy-network:
     external: true
- 
-  pg:
-    image: postgres:16
-    volumes:
-      - pg-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=decidim
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=decidim_production
-    networks:
-      - decidim-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U decidim -d decidim_production"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
-    
-  redis:
-    image: redis:7-alpine
-    volumes:
-      - redis-data:/data
-    networks:
-      - decidim-network
-    restart: unless-stopped
-
-networks:
-  decidim-network:
-    driver: bridge
-
-volumes:
-  pg-data:
-  redis-data:
-  decidim-uploads:
-  decidim-storage:
