@@ -31,13 +31,13 @@ services:
 
   decidim:
     build: .
-    working_dir: /app/ceci_et_cela   # <-- CORRECTION ICI : On se place dans le bon dossier
-    command: sh -c "sleep 10 && bundle exec rake db:migrate && bundle exec puma -b tcp://0.0.0.0:3000"
+    working_dir: /app
+    command: sh -c "sleep 10 && bundle exec rake db:migrate && bundle exec puma -C config/puma.rb -b tcp://0.0.0.0:3000"
     ports:
       - "3000"
     volumes:
-      - decidim-uploads:/app/ceci_et_cela/public/uploads   # <-- Et on corrige le chemin des volumes
-      - decidim-storage:/app/ceci_et_cela/storage          # <-- Et on corrige le chemin des volumes
+      - decidim-uploads:/app/public/uploads
+      - decidim-storage:/app/storage
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
@@ -68,4 +68,3 @@ volumes:
 networks:
   dokploy-network:
     external: true
-    name: dokploy-network
