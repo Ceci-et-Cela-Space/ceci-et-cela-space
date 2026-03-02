@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
   sidekiq:
     image: ghcr.io/decidim/decidim:latest
-    command: bundle exec sidekiq
+    command: bash -c "bundle install && bundle exec sidekiq"
     volumes:
       - decidim-uploads:/code/public/uploads
       - decidim-storage:/code/storage
