@@ -52,7 +52,6 @@ services:
   sidekiq:
     image: ghcr.io/decidim/decidim:latest
     command: bash -c "bundle install && bundle exec sidekiq" 
-    # ou : command: bundle exec bin/delayed_job 
     volumes:
       - decidim-uploads:/code/public/uploads
       - decidim-storage:/code/storage
