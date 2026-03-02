@@ -1,8 +1,8 @@
 FROM ruby:3.1.4-bullseye
 
-# Installation de Node.js 18 (LTS)
+# Installation de Node.js 20 (LTS) - C'est LA clé du problème !
 RUN apt-get update -qq && apt-get install -y curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 
 # Installation des dépendances système
 RUN apt-get update -qq && \
@@ -41,8 +41,8 @@ RUN bundle exec rails shakapacker:install
 # Installation de webpacker spécifique à Decidim
 RUN bundle exec rails decidim:webpacker:install
 
-# AJOUT CRUCIAL : On force l'installation du module manquant graphiql
-RUN yarn add graphiql@^1.4.2
+# On force l'installation du module manquant graphiql en ignorant les alertes de version
+RUN yarn add graphiql@^1.4.2 --ignore-engines
 
 # Et on compile les assets finaux
 RUN bundle exec rails assets:precompile
