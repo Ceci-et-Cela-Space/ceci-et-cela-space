@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-bullseye
+FROM ruby:3.1.4-bullseye
 
 # Installation des dépendances système
 RUN apt-get update -qq && \
@@ -18,6 +18,9 @@ COPY Gemfile ./
 
 # Génération de la coquille Rails avec le nom de ta coopérative
 RUN decidim --path . ceci_et_cela
+
+# Copie du Gemfile personnalisé par-dessus celui généré par decidim
+COPY Gemfile ./
 
 # Installation finale des gems
 RUN bundle install
