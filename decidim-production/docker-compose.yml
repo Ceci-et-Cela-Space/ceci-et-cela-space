@@ -1,10 +1,38 @@
+version: "3"
 services:
+  pg:
+    image: postgres:14
+    environment:
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_USER=decidim
+      - POSTGRES_DB=decidim_production
+    volumes:
+      - decidim-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U decidim -d decidim_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:6-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
   decidim:
     build: .
-    # On reste sur le port 3000 standard de Puma
     command: sh -c "sleep 10 && bundle exec rake db:migrate && bundle exec puma -b tcp://0.0.0.0:3000"
     ports:
-      - "3000" # Expose dynamiquement au lieu de bloquer l'hôte (syntaxe sans les deux points)
+      - "3000"
     volumes:
       - decidim-uploads:/app/public/uploads
       - decidim-storage:/app/storage
@@ -26,31 +54,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    # AJOUT CRUCIAL : On connecte le conteneur au réseau global de Dokploy
     networks:
       - dokploy-network
     restart: unless-stopped
 
-  # Il faut aussi que pg et redis rejoignent ce réseau pour discuter avec decidim
-  pg:
-    # ... garde ton image et tes variables actuelles pour PG
-    networks:
-      - dokploy-network
+volumes:
+  decidim-pg-data:
+  decidim-uploads:
+  decidim-storage:
 
-  redis:
-    # ... garde ton image redis
-    networks:
-      - dokploy-network
-
-# On déclare le réseau de Dokploy comme réseau "externe"
+# UN SEUL bloc networks ici, tout en bas !
 networks:
   dokploy-network:
     external: true
-
-
-
-
-    
+ 
   pg:
     image: postgres:16
     volumes:
