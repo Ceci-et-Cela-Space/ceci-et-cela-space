@@ -1,12 +1,12 @@
 services:
   decidim:
-    image: ghcr.io/decidim/decidim:latest
+    build: .
     command: sh -c "sleep 10 && bundle exec rake db:migrate ; bundle exec rails s -b 0.0.0.0 -p 3000"
     ports:
       - 3001:3000
     volumes:
-      - decidim-uploads:/code/public/uploads
-      - decidim-storage:/code/storage
+      - decidim-uploads:/app/public/uploads   # <-- Remplacé /code par /app
+      - decidim-storage:/app/storage          # <-- Remplacé /code par /app
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
@@ -18,7 +18,7 @@ services:
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_LOG_TO_STDOUT=true
       - DISABLE_FORCE_SSL=true
-      - QUEUE_ADAPTER=async  # <-- On utilise la file d'attente native de Rails
+      - QUEUE_ADAPTER=async
     depends_on:
       pg:
         condition: service_healthy
@@ -27,6 +27,7 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
+
     
   pg:
     image: postgres:16
