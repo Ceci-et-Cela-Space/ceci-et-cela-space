@@ -1,10 +1,11 @@
 services:
   decidim:
     build: .
-    # Remplacement de rails s par puma (plus stable) et on s'assure qu'il utilise le port 3000
-    command: sh -c "sleep 10 && bundle exec rake db:migrate ; bundle exec puma -b tcp://0.0.0.0:3000"
+    command: sh -c "sleep 10 && bundle exec rake db:migrate && bundle exec puma -b tcp://0.0.0.0:3000"
+    # On supprime le mapping "3000:3000" qui crée le conflit
+    # On met "3001:3000" comme tu avais au début, ce qui est sûr pour l'hôte !
     ports:
-      - "3000:3000" # <-- CORRECTION ICI : on expose le 3000 sur le 3000
+      - "3001:3000"
     volumes:
       - decidim-uploads:/app/public/uploads
       - decidim-storage:/app/storage
@@ -20,7 +21,6 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - DISABLE_FORCE_SSL=true
       - QUEUE_ADAPTER=async
-      # Cette variable aide Rails à comprendre qu'il est derrière un proxy Dokploy
       - DECIDIM_FORCE_SSL=false 
     depends_on:
       pg:
@@ -30,6 +30,7 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
+
 
 
     
