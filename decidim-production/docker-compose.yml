@@ -49,9 +49,9 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
-  sidekiq:
+    sidekiq:
     image: ghcr.io/decidim/decidim:latest
-    command: bundle exec sidekiq 
+    command: bundle exec sidekiq
     volumes:
       - decidim-uploads:/code/public/uploads
       - decidim-storage:/code/storage
@@ -73,6 +73,7 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
+
 
 networks:
   decidim-network:
