@@ -52,9 +52,9 @@ services:
       - decidim-network
     restart: unless-stopped
     
-  sidekiq:
+  jobs:
     image: ghcr.io/decidim/decidim:latest
-    entrypoint: ["bundle", "exec", "sidekiq"]
+    command: bin/delayed_job run
     volumes:
       - decidim-uploads:/code/public/uploads
       - decidim-storage:/code/storage
@@ -66,7 +66,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_NAME=decidim_production
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - REDIS_URL=redis://redis:6379/0
+      - QUEUE_ADAPTER=delayed_job
       - DISABLE_FORCE_SSL=true
     depends_on:
       pg:
@@ -76,6 +76,7 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
+
 
 networks:
   decidim-network:
