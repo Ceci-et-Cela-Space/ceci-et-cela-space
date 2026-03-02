@@ -49,30 +49,30 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
-    sidekiq:
-      image: ghcr.io/decidim/decidim:latest
-      entrypoint: ["bundle", "exec", "sidekiq"]
-      volumes:
-        - decidim-uploads:/code/public/uploads
-        - decidim-storage:/code/storage
-      environment:
-        - RAILS_ENV=production
-        - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
-        - DATABASE_HOST=pg
-        - DATABASE_USERNAME=decidim
-        - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-        - DATABASE_NAME=decidim_production
-        - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-        - REDIS_URL=redis://redis:6379/0
-        - DISABLE_FORCE_SSL=true
-      depends_on:
-        pg:
-        condition: service_healthy
-      redis:
-        condition: service_started
-      networks:
-        - decidim-network
-      restart: unless-stopped
+  sidekiq:
+    image: ghcr.io/decidim/decidim:latest
+    entrypoint: ["bundle", "exec", "sidekiq"]
+    volumes:
+      - decidim-uploads:/code/public/uploads
+      - decidim-storage:/code/storage
+    environment:
+      - RAILS_ENV=production
+      - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
+      - DATABASE_HOST=pg
+      - DATABASE_USERNAME=decidim
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=decidim_production
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - REDIS_URL=redis://redis:6379/0
+      - DISABLE_FORCE_SSL=true
+    depends_on:
+      pg:
+      condition: service_healthy
+    redis:
+      condition: service_started
+    networks:
+      - decidim-network
+    restart: unless-stopped
 
 
 
