@@ -1,38 +1,29 @@
 FROM ruby:3.1.4-bullseye
 
-# Installation des dépendances système
 RUN apt-get update -qq && \
     apt-get install -y build-essential libpq-dev nodejs npm imagemagick libvips && \
     npm install -g yarn && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Création du dossier de l'application
 WORKDIR /app
 
-# Installation de la commande de génération
 RUN gem install decidim -v 0.28.0
 
-# Copie de ton Gemfile personnalisé
 COPY Gemfile ./
 
-# PRE-PATCH : forcer le chargement de Logger pour Rails 6.1 avec Ruby 3
+# Patch de compatibilité Ruby/Rails
 RUN ruby -e "require 'logger'"
 
-# Génération de la coquille Rails avec le nom de ta coopérative
-# Le paramètre ruby -rlogger permet d'éviter l'erreur NameError
-RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
+# Génération de l'application SANS créer de sous-dossier (grâce à --force)
+RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela --force
 
-# Copie du Gemfile personnalisé par-dessus celui généré par decidim
 COPY Gemfile ./
 
-# Installation finale des gems
 RUN bundle install
 
-# Compilation des assets (CSS/JS)
 ENV RAILS_ENV=production
 ENV SECRET_KEY_BASE=dummy_key_for_build
 RUN bundle exec rails assets:precompile
 
 EXPOSE 3000
-CMD ["bash", "-c", "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb"]
