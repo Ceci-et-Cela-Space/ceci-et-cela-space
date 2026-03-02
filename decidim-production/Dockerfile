@@ -16,8 +16,12 @@ RUN gem install decidim -v 0.28.0
 # Copie de ton Gemfile personnalisé
 COPY Gemfile ./
 
+# PRE-PATCH : forcer le chargement de Logger pour Rails 6.1 avec Ruby 3
+RUN ruby -e "require 'logger'"
+
 # Génération de la coquille Rails avec le nom de ta coopérative
-RUN decidim --path . ceci_et_cela
+# Le paramètre ruby -rlogger permet d'éviter l'erreur NameError
+RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
 
 # Copie du Gemfile personnalisé par-dessus celui généré par decidim
 COPY Gemfile ./
