@@ -33,7 +33,7 @@ services:
     build: .
     working_dir: /app
     # On utilise simplement 0.0.0.0:3000 sans préciser tcp:// qui peut parfois troubler Traefik
-    command: sh -c "sleep 15 && bundle exec rake db:migrate && bundle exec rake db:seed && bundle exec puma -b tcp://0.0.0.0:3000"
+    command: sh -c "sleep 15 && bundle exec rake db:migrate && bundle exec puma -b tcp://0.0.0.0:3000"
     volumes:
       - decidim-uploads:/app/public/uploads
       - decidim-storage:/app/storage
