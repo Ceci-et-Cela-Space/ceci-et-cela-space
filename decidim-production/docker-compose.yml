@@ -1,12 +1,13 @@
 services:
   decidim:
     build: .
-    command: sh -c "sleep 10 && bundle exec rake db:migrate ; bundle exec rails s -b 0.0.0.0 -p 3000"
+    # Remplacement de rails s par puma (plus stable) et on s'assure qu'il utilise le port 3000
+    command: sh -c "sleep 10 && bundle exec rake db:migrate ; bundle exec puma -b tcp://0.0.0.0:3000"
     ports:
-      - 3001:3000
+      - "3000:3000" # <-- CORRECTION ICI : on expose le 3000 sur le 3000
     volumes:
-      - decidim-uploads:/app/public/uploads   # <-- Remplacé /code par /app
-      - decidim-storage:/app/storage          # <-- Remplacé /code par /app
+      - decidim-uploads:/app/public/uploads
+      - decidim-storage:/app/storage
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
@@ -19,6 +20,8 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - DISABLE_FORCE_SSL=true
       - QUEUE_ADAPTER=async
+      # Cette variable aide Rails à comprendre qu'il est derrière un proxy Dokploy
+      - DECIDIM_FORCE_SSL=false 
     depends_on:
       pg:
         condition: service_healthy
@@ -27,6 +30,7 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
+
 
     
   pg:
