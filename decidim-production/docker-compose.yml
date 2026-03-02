@@ -1,11 +1,10 @@
 services:
   decidim:
     build: .
+    # On reste sur le port 3000 standard de Puma
     command: sh -c "sleep 10 && bundle exec rake db:migrate && bundle exec puma -b tcp://0.0.0.0:3000"
-    # On supprime le mapping "3000:3000" qui crée le conflit
-    # On met "3001:3000" comme tu avais au début, ce qui est sûr pour l'hôte !
     ports:
-      - "3001:3000"
+      - "3000" # Expose dynamiquement au lieu de bloquer l'hôte (syntaxe sans les deux points)
     volumes:
       - decidim-uploads:/app/public/uploads
       - decidim-storage:/app/storage
@@ -27,9 +26,27 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    # AJOUT CRUCIAL : On connecte le conteneur au réseau global de Dokploy
     networks:
-      - decidim-network
+      - dokploy-network
     restart: unless-stopped
+
+  # Il faut aussi que pg et redis rejoignent ce réseau pour discuter avec decidim
+  pg:
+    # ... garde ton image et tes variables actuelles pour PG
+    networks:
+      - dokploy-network
+
+  redis:
+    # ... garde ton image redis
+    networks:
+      - dokploy-network
+
+# On déclare le réseau de Dokploy comme réseau "externe"
+networks:
+  dokploy-network:
+    external: true
+
 
 
 
