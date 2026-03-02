@@ -15,9 +15,15 @@ COPY Gemfile ./
 # Patch de compatibilité Ruby/Rails
 RUN ruby -e "require 'logger'"
 
-# Génération de l'application SANS créer de sous-dossier (grâce à --force)
-RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela --force
+# Génération de l'application SANS créer de sous-dossier (en utilisant le point .)
+# S'il crée un dossier ceci_et_cela, on va forcer le déplacement des fichiers après.
+RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
 
+# LA SOLUTION EST ICI : on déplace tout le contenu du dossier ceci_et_cela vers /app
+# et on supprime le dossier vide.
+RUN mv ceci_et_cela/* . && mv ceci_et_cela/.[!.]* . && rmdir ceci_et_cela
+
+# On écrase le Gemfile généré par Decidim avec le tien
 COPY Gemfile ./
 
 RUN bundle install
