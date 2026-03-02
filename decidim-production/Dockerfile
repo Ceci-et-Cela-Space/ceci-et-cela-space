@@ -1,7 +1,14 @@
 FROM ruby:3.1.4-bullseye
 
+# 1. On installe d'abord curl et gnupg pour télécharger le script de NodeSource
+RUN apt-get update -qq && apt-get install -y curl gnupg
+
+# 2. On ajoute le dépôt officiel pour Node.js 18 (LTS) 
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+
+# 3. On installe toutes les dépendances requises dont Node.js version 18 et Yarn
 RUN apt-get update -qq && \
-    apt-get install -y build-essential libpq-dev nodejs npm imagemagick libvips && \
+    apt-get install -y build-essential libpq-dev nodejs imagemagick libvips && \
     npm install -g yarn && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -33,7 +40,7 @@ ENV SECRET_KEY_BASE=dummy_key_for_build
 # On installe shakapacker 
 RUN RAILS_ENV=production bundle exec rails shakapacker:install
 
-# LA COMMANDE MAGIQUE POUR LES MODULES (au lieu de npm ou yarn install)
+# LA COMMANDE MAGIQUE POUR LES MODULES
 RUN RAILS_ENV=production bundle exec rails decidim:webpacker:install
 
 # Et on compile les assets finaux
