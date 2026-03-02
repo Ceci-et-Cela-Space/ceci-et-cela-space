@@ -33,8 +33,8 @@ ENV SECRET_KEY_BASE=dummy_key_for_build
 # On installe shakapacker 
 RUN RAILS_ENV=production bundle exec rails shakapacker:install
 
-# NOUVEAU : On installe toutes les librairies Javascript de Decidim (Turbolinks, etc.)
-RUN npm install
+# NOUVEAU : On utilise yarn (que Decidim utilise par défaut) pour installer les bons modules
+RUN yarn install
 
 # Et on compile les assets finaux
 RUN bundle exec rails assets:precompile
