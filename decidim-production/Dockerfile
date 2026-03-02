@@ -15,21 +15,22 @@ COPY Gemfile ./
 # Patch de compatibilité Ruby/Rails
 RUN ruby -e "require 'logger'"
 
-# Génération de l'application SANS créer de sous-dossier (en utilisant le point .)
-# S'il crée un dossier ceci_et_cela, on va forcer le déplacement des fichiers après.
+# Génération de l'application SANS créer de sous-dossier
 RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
 
-# LA SOLUTION EST ICI : on déplace tout le contenu du dossier ceci_et_cela vers /app
-# et on supprime le dossier vide.
+# On déplace tout le contenu vers /app
 RUN mv ceci_et_cela/* . && mv ceci_et_cela/.[!.]* . && rmdir ceci_et_cela
 
-# On écrase le Gemfile généré par Decidim avec le tien
 COPY Gemfile ./
 
 RUN bundle install
 
+# L'ÉTAPE MAGIQUE MANQUANTE EST ICI : Configuration du javascript
+RUN bundle exec rails shakapacker:install
+
 ENV RAILS_ENV=production
 ENV SECRET_KEY_BASE=dummy_key_for_build
+# Compilation des assets (CSS/JS) qui ne plantera plus !
 RUN bundle exec rails assets:precompile
 
 EXPOSE 3000
