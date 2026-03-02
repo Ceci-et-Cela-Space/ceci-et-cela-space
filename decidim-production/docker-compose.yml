@@ -18,6 +18,7 @@ services:
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_LOG_TO_STDOUT=true
       - DISABLE_FORCE_SSL=true
+      - QUEUE_ADAPTER=async  # <-- On utilise la file d'attente native de Rails
     depends_on:
       pg:
         condition: service_healthy
@@ -51,32 +52,6 @@ services:
     networks:
       - decidim-network
     restart: unless-stopped
-    
-  jobs:
-    image: ghcr.io/decidim/decidim:latest
-    command: bin/delayed_job run
-    volumes:
-      - decidim-uploads:/code/public/uploads
-      - decidim-storage:/code/storage
-    environment:
-      - RAILS_ENV=production
-      - DATABASE_URL=postgres://decidim:${DATABASE_PASSWORD}@pg:5432/decidim_production
-      - DATABASE_HOST=pg
-      - DATABASE_USERNAME=decidim
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=decidim_production
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      - QUEUE_ADAPTER=delayed_job
-      - DISABLE_FORCE_SSL=true
-    depends_on:
-      pg:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    networks:
-      - decidim-network
-    restart: unless-stopped
-
 
 networks:
   decidim-network:
