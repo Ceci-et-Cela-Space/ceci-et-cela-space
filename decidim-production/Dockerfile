@@ -41,19 +41,9 @@ RUN bundle exec rails shakapacker:install
 # Installation de webpacker spécifique à Decidim
 RUN bundle exec rails decidim:webpacker:install
 
-# Fix SCSS: ajouter node_modules aux additional_paths de toutes les sections
-# decidim-sass-loader.js utilise ces chemins comme loadPaths pour sass-embedded
-# (sinon tailwindcss/base et tom-select/dist/scss/tom-select sont introuvables)
-RUN ruby -ryaml -e "
-  f = 'config/shakapacker.yml'
-  config = YAML.safe_load(File.read(f), aliases: true)
-  config.each do |_env, settings|
-    next unless settings.is_a?(Hash)
-    settings['additional_paths'] ||= []
-    settings['additional_paths'] << 'node_modules' unless settings['additional_paths'].include?('node_modules')
-  end
-  File.write(f, config.to_yaml)
-"
+# Fix SCSS: ajouter node_modules aux additional_paths pour sass-embedded
+# (decidim-sass-loader.js l'utilise comme loadPaths pour résoudre tailwindcss/tom-select)
+RUN ruby -ryaml -e "f='config/shakapacker.yml';c=YAML.safe_load(File.read(f),aliases:true);c.each{|_,s|next unless s.is_a?(Hash);s['additional_paths']||=[];s['additional_paths']<<'node_modules' unless s['additional_paths'].include?('node_modules')};File.write(f,c.to_yaml)"
 
 # yarn install + ajout explicite des peer dependencies non installées automatiquement
 # (graphiql pour l'API, turbolinks et emojibase sont des peer deps de Decidim)
