@@ -44,6 +44,9 @@ RUN bundle exec rails decidim:webpacker:install
 # Installation de graphiql avec yarn install explicite pour s'assurer que node_modules existe
 RUN yarn install && yarn add graphiql@1.4.7 --ignore-engines
 
+# Symlink pour que webpack trouve node_modules en remontant depuis les entrypoints des gems
+RUN ln -s /app/node_modules /usr/local/bundle/gems/node_modules
+
 # Et on compile les assets finaux
 RUN bundle exec rails assets:precompile
 
