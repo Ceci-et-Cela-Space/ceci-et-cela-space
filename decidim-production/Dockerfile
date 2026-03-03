@@ -41,10 +41,10 @@ RUN bundle exec rails shakapacker:install
 # Installation de webpacker spécifique à Decidim
 RUN bundle exec rails decidim:webpacker:install
 
-# Installation des packages npm avec legacy-peer-deps pour inclure les peer dependencies
-# (emojibase, turbolinks, etc. sont des peer deps non installées automatiquement par yarn)
-RUN npm install --legacy-peer-deps && \
-    npm install --legacy-peer-deps graphiql@1.4.7 turbolinks emojibase
+# yarn install + ajout explicite des peer dependencies non installées automatiquement
+# (graphiql pour l'API, turbolinks et emojibase sont des peer deps de Decidim)
+RUN yarn install --ignore-engines && \
+    yarn add graphiql@1.4.7 turbolinks emojibase --ignore-engines
 
 # Symlink pour que webpack trouve node_modules en remontant depuis les entrypoints des gems
 RUN ln -s /app/node_modules /usr/local/bundle/gems/node_modules
