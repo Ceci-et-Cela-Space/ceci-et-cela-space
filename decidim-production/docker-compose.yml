@@ -45,7 +45,7 @@ services:
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_NAME=decidim_production
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
-      # Les deux lignes magiques pour régler l'erreur 500 :
+      - DECIDIM_HOST=ceci-et-cela.space 
       - DECIDIM_SERVER_URL=https://ceci-et-cela.space
       - RAILS_SERVE_STATIC_FILES=true
       - RAILS_LOG_TO_STDOUT=true
