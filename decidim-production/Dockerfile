@@ -44,7 +44,7 @@ RUN bundle exec rails decidim:webpacker:install
 # yarn install + ajout explicite des peer dependencies non installées automatiquement
 # (graphiql pour l'API, turbolinks et emojibase sont des peer deps de Decidim)
 RUN yarn install --ignore-engines && \
-    yarn add graphiql@1.4.7 turbolinks emojibase --ignore-engines
+    yarn add graphiql@1.4.7 turbolinks emojibase picmo --ignore-engines
 
 # Symlink pour que webpack trouve node_modules en remontant depuis les entrypoints des gems
 RUN ln -s /app/node_modules /usr/local/bundle/gems/node_modules
