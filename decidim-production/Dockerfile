@@ -13,7 +13,7 @@ RUN apt-get update -qq && \
 
 WORKDIR /app
 
-RUN gem install decidim -v 0.28.0
+RUN gem install decidim -v 0.28.6
 
 COPY Gemfile ./
 
@@ -41,8 +41,8 @@ RUN bundle exec rails shakapacker:install
 # Installation de webpacker spécifique à Decidim
 RUN bundle exec rails decidim:webpacker:install
 
-# On force l'installation du module manquant graphiql en ignorant les alertes de version
-RUN yarn add graphiql@^1.4.2 --ignore-engines
+# Installation de graphiql avec yarn install explicite pour s'assurer que node_modules existe
+RUN yarn install && yarn add graphiql@1.4.7 --ignore-engines
 
 # Et on compile les assets finaux
 RUN bundle exec rails assets:precompile
