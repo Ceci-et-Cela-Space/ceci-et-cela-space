@@ -34,7 +34,7 @@ COPY config/routes.rb config/routes.rb
 RUN bundle install
 
 # Copie des migrations des gems dans db/migrate/ (timestamps fixes dans l'image)
-RUN bundle exec rake railties:install:migrations
+RUN RAILS_ENV=production SECRET_KEY_BASE=dummy bundle exec rake railties:install:migrations
 
 # On définit l'environnement
 ENV RAILS_ENV=production
