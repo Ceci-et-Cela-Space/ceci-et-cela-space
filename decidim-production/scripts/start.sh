@@ -7,25 +7,18 @@ until bundle exec rails runner "ActiveRecord::Base.connection.execute('SELECT 1'
 done
 echo "PostgreSQL prêt."
 
-echo "Marquage des migrations Rails framework conflictuelles..."
+echo "Vérification de l'état de la base de données..."
 bundle exec rails runner "
-  # Tables créées par le générateur Decidim avant les migrations
-  framework_tables = %w[
-    active_storage_blobs active_storage_attachments active_storage_variant_records
-    action_mailbox_inbound_emails action_text_rich_texts
-  ]
-  Dir['db/migrate/*.rb'].sort.each do |f|
-    version = File.basename(f).match(/^\d+/)[0]
-    next if ActiveRecord::SchemaMigration.where(version: version).exists?
-    content = File.read(f)
-    # Marquer si la migration crée une table déjà existante
-    framework_tables.each do |table|
-      if content.include?(table) && ActiveRecord::Base.connection.table_exists?(table)
-        ActiveRecord::SchemaMigration.create!(version: version)
-        puts \"Marqué : #{File.basename(f)}\"
-        break
-      end
+  if ActiveRecord::Base.connection.table_exists?('decidim_organizations')
+    puts 'Base déjà initialisée : marquage de toutes les migrations comme appliquées.'
+    Dir['db/migrate/*.rb'].sort.each do |f|
+      version = File.basename(f).match(/^\d+/)[0]
+      next if ActiveRecord::SchemaMigration.where(version: version).exists?
+      ActiveRecord::SchemaMigration.create!(version: version)
     end
+    puts 'Fait.'
+  else
+    puts 'Base vide : les migrations vont tourner normalement.'
   end
 "
 
