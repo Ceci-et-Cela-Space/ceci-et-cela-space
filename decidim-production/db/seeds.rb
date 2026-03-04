@@ -31,3 +31,15 @@ if Decidim::Organization.count.zero?
   )
   puts "Organisation créée : #{name} (#{host})"
 end
+
+# Crée la page statique Terms of Service si elle n'existe pas
+org = Decidim::Organization.first
+if org && Decidim::StaticPage.where(slug: "terms-of-service", organization: org).none?
+  Decidim::StaticPage.create!(
+    organization: org,
+    slug: "terms-of-service",
+    title: { org.default_locale => "Conditions d'utilisation" },
+    content: { org.default_locale => "<p>Conditions d'utilisation de la plateforme.</p>" }
+  )
+  puts "Page Terms of Service créée"
+end
