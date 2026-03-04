@@ -27,9 +27,14 @@ RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
 RUN mv ceci_et_cela/* . && mv ceci_et_cela/.[!.]* . && rmdir ceci_et_cela
 
 COPY Gemfile ./
+# On écrase le routes.rb généré avec le nôtre (contient le mount Decidim)
+COPY config/routes.rb config/routes.rb
 
 # Installation des paquets Ruby
 RUN bundle install
+
+# Copie des migrations des gems dans db/migrate/ (timestamps fixes dans l'image)
+RUN bundle exec rake railties:install:migrations
 
 # On définit l'environnement
 ENV RAILS_ENV=production
@@ -55,5 +60,10 @@ RUN ln -s /app/node_modules /usr/local/bundle/gems/node_modules
 
 # Et on compile les assets finaux
 RUN bundle exec rails assets:precompile
+
+# Copie du seed et du script de démarrage
+COPY db/seeds.rb db/seeds.rb
+COPY scripts/start.sh scripts/start.sh
+RUN chmod +x scripts/start.sh
 
 EXPOSE 3000
