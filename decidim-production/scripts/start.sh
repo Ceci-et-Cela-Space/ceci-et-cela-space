@@ -7,15 +7,13 @@ until bundle exec rails runner "ActiveRecord::Base.connection.execute('SELECT 1'
 done
 echo "PostgreSQL prêt."
 
-echo "Correction migration active_storage_variant_records si nécessaire..."
+echo "Marquage des migrations ActiveStorage conflictuelles si les tables existent déjà..."
 bundle exec rails runner "
-  pattern = Dir['db/migrate/*create_active_storage_variant_records*'].first
-  if pattern
-    version = File.basename(pattern).match(/^\d+/)[0]
-    if ActiveRecord::Base.connection.table_exists?('active_storage_variant_records') && !ActiveRecord::SchemaMigration.where(version: version).exists?
-      ActiveRecord::SchemaMigration.create!(version: version)
-      puts 'Migration active_storage_variant_records marquée comme appliquée.'
-    end
+  Dir['db/migrate/*active_storage*'].sort.each do |f|
+    version = File.basename(f).match(/^\d+/)[0]
+    next if ActiveRecord::SchemaMigration.where(version: version).exists?
+    ActiveRecord::SchemaMigration.create!(version: version)
+    puts \"Marqué comme appliqué : #{File.basename(f)}\"
   end
 "
 
