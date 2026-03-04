@@ -27,8 +27,10 @@ RUN ruby -rlogger /usr/local/bundle/bin/decidim --path . ceci_et_cela
 RUN mv ceci_et_cela/* . && mv ceci_et_cela/.[!.]* . && rmdir ceci_et_cela
 
 COPY Gemfile ./
-# On écrase le routes.rb généré avec le nôtre (contient le mount Decidim)
+# On écrase les fichiers de config générés avec les nôtres
 COPY config/routes.rb config/routes.rb
+COPY config/secrets.yml config/secrets.yml
+COPY config/initializers/decidim.rb config/initializers/decidim.rb
 
 # Installation des paquets Ruby
 RUN bundle install
